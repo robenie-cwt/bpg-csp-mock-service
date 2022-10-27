@@ -372,6 +372,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
   @Override
   public void addStubMapping(StubMapping stubMapping) {
     if (isRedisConfigured) {
+      if (stubMapping.getId() == null) {
+        stubMapping.setId(UUID.randomUUID());
+      }
       publisher.addStubMapping(stubMapping);
     } else {
       wireMockApp.addStubMapping(stubMapping);
