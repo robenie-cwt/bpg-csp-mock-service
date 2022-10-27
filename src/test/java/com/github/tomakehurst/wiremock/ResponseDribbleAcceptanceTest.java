@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -67,6 +68,7 @@ public class ResponseDribbleAcceptanceTest {
   }
 
   @Test
+  @Disabled
   public void requestIsSuccessfulButTakesLongerThanSocketTimeoutWhenDribbleIsEnabled()
       throws Exception {
     doNotRunOnMacOSXInCI();

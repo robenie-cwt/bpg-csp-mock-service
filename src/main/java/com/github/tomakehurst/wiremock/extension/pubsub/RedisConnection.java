@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2022 CWT
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.extension.pubsub;
 
-public interface Notifier {
+import redis.clients.jedis.JedisPool;
 
-  public static final String KEY = "Notifier";
+public class RedisConnection {
 
-  void info(String message);
+  private static volatile JedisPool jedisInstance;
 
-  default void importantInfo(String message) {
-    info(message);
+  private RedisConnection() {}
+
+  public static JedisPool getJedisInstance(String host, int port) {
+    if (jedisInstance == null) {
+      synchronized (JedisPool.class) {
+        if (jedisInstance == null) {
+          jedisInstance = new JedisPool(host, port);
+        }
+      }
+    }
+    return jedisInstance;
   }
-
-  void error(String message);
-
-  void error(String message, Throwable t);
 }

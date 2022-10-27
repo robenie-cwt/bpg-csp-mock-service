@@ -48,6 +48,11 @@ public class ConsoleNotifier implements Notifier {
   }
 
   @Override
+  public void importantInfo(String message) {
+    out.println(formatMessage(message));
+  }
+
+  @Override
   public void error(String message) {
     err.println(formatMessage(message));
   }

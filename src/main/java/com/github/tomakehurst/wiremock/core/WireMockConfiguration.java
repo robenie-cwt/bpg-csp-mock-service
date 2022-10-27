@@ -121,6 +121,9 @@ public class WireMockConfiguration implements Options {
 
   private Limit responseBodySizeLimit = UNLIMITED;
 
+  private String redisClusterHost = null;
+  private int redisClusterPort = 6379;
+
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
       mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
@@ -442,6 +445,26 @@ public class WireMockConfiguration implements Options {
   public WireMockConfiguration trustedProxyTargets(List<String> trustedProxyTargets) {
     this.trustedProxyTargets.addAll(trustedProxyTargets);
     return this;
+  }
+
+  public WireMockConfiguration redisClusterHost(String redisClusterHost) {
+    this.redisClusterHost = redisClusterHost;
+    return this;
+  }
+
+  public WireMockConfiguration redisClusterPort(int redisClusterPort) {
+    this.redisClusterPort = redisClusterPort;
+    return this;
+  }
+
+  @Override
+  public String getRedisClusterHost() {
+    return redisClusterHost;
+  }
+
+  @Override
+  public int getRedisClusterPort() {
+    return redisClusterPort;
   }
 
   @Override

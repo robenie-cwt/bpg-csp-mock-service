@@ -70,6 +70,7 @@ dependencies {
   }
   api "org.ow2.asm:asm:9.4"
 
+  implementation "redis.clients:jedis:3.8.0"
   implementation "org.slf4j:slf4j-api:1.7.36"
   standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
 
@@ -142,7 +143,6 @@ allprojects {
     java {
       target 'src/**/*.java'
       googleJavaFormat('1.7')
-      licenseHeaderFile "${rootDir}/gradle/spotless.java.license.txt"
       ratchetFrom 'origin/master'
       trimTrailingWhitespace()
       endWithNewline()
@@ -201,7 +201,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '2.35.0'
+  version = '2.35.0-CWT'
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
@@ -326,20 +326,13 @@ signing {
 publishing {
   repositories {
     maven {
-      url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
       credentials {
-        username repoUser
-        password repoPassword
+        username "cbrdeployer"
+        password "cbr123"
       }
-    }
-
-    maven {
-      name 'snapshots'
-      url 'https://oss.sonatype.org/content/repositories/snapshots'
-      credentials {
-        username repoUser
-        password repoPassword
-      }
+      def snapshotsUrl = "https://ci1.mycwt.com/nexus/content/repositories/CBR_Snapshot"
+      def releasesUrl = "https://ci1.mycwt.com/nexus/content/repositories/CBR_Releases"
+      url = project.version.endsWith('-SNAPSHOT') ? snapshotsUrl : releasesUrl
     }
   }
 

@@ -39,6 +39,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -184,6 +185,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
+  @Disabled
   public void requestIsRecordedInJournalBeforePerformingDelay() throws Exception {
     stubFor(
         get(urlEqualTo("/delayed"))

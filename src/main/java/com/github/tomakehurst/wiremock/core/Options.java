@@ -30,6 +30,10 @@ import java.util.Map;
 
 public interface Options {
 
+  String getRedisClusterHost();
+
+  int getRedisClusterPort();
+
   enum ChunkedEncodingPolicy {
     ALWAYS,
     NEVER,

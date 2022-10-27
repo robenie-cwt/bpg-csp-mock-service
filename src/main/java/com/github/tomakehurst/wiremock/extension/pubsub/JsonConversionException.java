@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2022 CWT
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.extension.pubsub;
 
-public interface Notifier {
-
-  public static final String KEY = "Notifier";
-
-  void info(String message);
-
-  default void importantInfo(String message) {
-    info(message);
+public class JsonConversionException extends RuntimeException {
+  public JsonConversionException(Exception e) {
+    super(e);
   }
-
-  void error(String message);
-
-  void error(String message, Throwable t);
 }
