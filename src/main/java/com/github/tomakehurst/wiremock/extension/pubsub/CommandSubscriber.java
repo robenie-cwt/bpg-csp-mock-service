@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.extension.pubsub;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -96,18 +96,10 @@ public class CommandSubscriber extends JedisPubSub {
   }
 
   private ScenarioMessage getScenarioMessage(String message) {
-    try {
-      return objectMapper.readValue(message, ScenarioMessage.class);
-    } catch (JsonProcessingException e) {
-      throw new JsonConversionException(e);
-    }
+    return Json.read(message, ScenarioMessage.class);
   }
 
   private StubMapping getStubMapping(String message) {
-    try {
-      return objectMapper.readValue(message, StubMapping.class);
-    } catch (JsonProcessingException e) {
-      throw new JsonConversionException(e);
-    }
+    return Json.read(message, StubMapping.class);
   }
 }

@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.extension.pubsub;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.UUID;
 import redis.clients.jedis.Jedis;
@@ -118,11 +118,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     }
   }
 
-  private String covertToString(Object stubMapping) {
-    try {
-      return objectMapper.writeValueAsString(stubMapping);
-    } catch (JsonProcessingException e) {
-      throw new JsonConversionException(e);
-    }
+  private String covertToString(Object object) {
+    return Json.write(object);
   }
 }
