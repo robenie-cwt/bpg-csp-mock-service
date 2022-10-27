@@ -67,15 +67,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   protected final WireMock client;
 
-  private final CommandPublisher publisher;
-
   private final boolean isRedisConfigured;
 
   public WireMockServer(Options options) {
     this.options = options;
     this.notifier = options.notifier();
-
-    wireMockApp = new WireMockApp(options, this);
 
     String redisClusterHost = options.getRedisClusterHost();
     isRedisConfigured = redisClusterHost != null && !redisClusterHost.isEmpty();
@@ -84,11 +80,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
           "Connecting to Redis " + redisClusterHost + ":" + options.getRedisClusterPort());
       JedisPool jedis =
           RedisConnection.getJedisInstance(redisClusterHost, options.getRedisClusterPort());
-      publisher = new RedisCommandPublisher(jedis);
-      subscribeToRedis(jedis);
+
+      wireMockApp = new WireMockApp(options, this, jedis);
+      subscribeToRedis(jedis, wireMockApp, notifier);
     } else {
+      wireMockApp = new WireMockApp(options, this);
       notifier.importantInfo("No Redis PubSub");
-      publisher = new NoOpCommandPublisher();
     }
 
     this.stubRequestHandler = wireMockApp.buildStubRequestHandler();
@@ -98,18 +95,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
             options, wireMockApp.buildAdminRequestHandler(), stubRequestHandler);
 
     client = new WireMock(wireMockApp);
-  }
-
-  private void subscribeToRedis(JedisPool jedis) {
-    new Thread(
-            () -> {
-              try (Jedis j = jedis.getResource()) {
-                String[] channels =
-                    Arrays.stream(Topics.values()).map(Topics::getTopic).toArray(String[]::new);
-                j.subscribe(new CommandSubscriber(this), channels);
-              }
-            })
-        .start();
   }
 
   public WireMockServer(
@@ -157,6 +142,21 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public WireMockServer() {
     this(wireMockConfig());
+  }
+
+  private void subscribeToRedis(JedisPool jedis, WireMockApp wireMockApp, Notifier notifier) {
+    new Thread(
+            () -> {
+              try (Jedis j = jedis.getResource()) {
+                String[] channels =
+                    Arrays.stream(Topics.values()).map(Topics::toString).toArray(String[]::new);
+
+                notifier.importantInfo("Subscribing...");
+                j.subscribe(new CommandSubscriber(wireMockApp, notifier), channels);
+                notifier.info("Subscription ended...");
+              }
+            })
+        .start();
   }
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
@@ -314,7 +314,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void removeStubMapping(UUID id) {
-    publisher.removeStubMapping(id);
     wireMockApp.removeStubMapping(id);
   }
 
@@ -371,23 +370,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void addStubMapping(StubMapping stubMapping) {
-    if (isRedisConfigured) {
-      if (stubMapping.getId() == null) {
-        stubMapping.setId(UUID.randomUUID());
-      }
-      publisher.addStubMapping(stubMapping);
-    } else {
-      wireMockApp.addStubMapping(stubMapping);
-    }
+    wireMockApp.addStubMapping(stubMapping);
   }
 
   @Override
   public void editStubMapping(StubMapping stubMapping) {
-    if (isRedisConfigured) {
-      publisher.editStubMapping(stubMapping);
-    } else {
-      wireMockApp.editStubMapping(stubMapping);
-    }
+    wireMockApp.editStubMapping(stubMapping);
   }
 
   @Override
@@ -407,29 +395,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void resetAll() {
-    if (isRedisConfigured) {
-      publisher.resetAll();
-    } else {
-      wireMockApp.resetAll();
-    }
+    wireMockApp.resetAll();
   }
 
   @Override
   public void resetRequests() {
-    if (isRedisConfigured) {
-      publisher.resetRequests();
-    } else {
-      wireMockApp.resetRequests();
-    }
+    wireMockApp.resetRequests();
   }
 
   @Override
   public void resetToDefaultMappings() {
-    if (isRedisConfigured) {
-      publisher.resetToDefaultMappings();
-    } else {
-      wireMockApp.resetToDefaultMappings();
-    }
+    wireMockApp.resetToDefaultMappings();
   }
 
   @Override
@@ -449,20 +425,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void resetScenarios() {
-    if (isRedisConfigured) {
-      publisher.resetScenarios();
-    } else {
-      wireMockApp.resetScenarios();
-    }
+    wireMockApp.resetScenarios();
   }
 
   @Override
   public void resetMappings() {
-    if (isRedisConfigured) {
-      publisher.resetMappings();
-    } else {
-      wireMockApp.resetMappings();
-    }
+    wireMockApp.resetMappings();
   }
 
   @Override
@@ -482,11 +450,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void removeServeEvent(UUID eventId) {
-    if (isRedisConfigured) {
-      publisher.removeServeEvent(eventId);
-    } else {
-      wireMockApp.removeServeEvent(eventId);
-    }
+    wireMockApp.removeServeEvent(eventId);
   }
 
   @Override
@@ -502,11 +466,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void updateGlobalSettings(GlobalSettings newSettings) {
-    if (isRedisConfigured) {
-      notifier.info("updateGlobalSettings() is disabled due to Redis");
-    } else {
-      wireMockApp.updateGlobalSettings(newSettings);
-    }
+    wireMockApp.updateGlobalSettings(newSettings);
   }
 
   @Override
@@ -521,20 +481,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void resetScenario(String name) {
-    if (isRedisConfigured) {
-      publisher.resetScenario(name);
-    } else {
-      wireMockApp.resetScenario(name);
-    }
+    wireMockApp.resetScenario(name);
   }
 
   @Override
   public void setScenarioState(String name, String state) {
-    if (isRedisConfigured) {
-      publisher.setScenarioState(name, state);
-    } else {
-      wireMockApp.setScenarioState(name, state);
-    }
+    wireMockApp.setScenarioState(name, state);
   }
 
   @Override
@@ -549,29 +501,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void startRecording(String targetBaseUrl) {
-    if (isRedisConfigured) {
-      notifier.info("startRecording(String) is disabled");
-    } else {
-      wireMockApp.startRecording(targetBaseUrl);
-    }
+    wireMockApp.startRecording(targetBaseUrl);
   }
 
   @Override
   public void startRecording(RecordSpec spec) {
-    if (isRedisConfigured) {
-      notifier.info("startRecording(RecordSpec) is disabled");
-    } else {
-      wireMockApp.startRecording(spec);
-    }
+    wireMockApp.startRecording(spec);
   }
 
   @Override
   public void startRecording(RecordSpecBuilder recordSpec) {
-    if (isRedisConfigured) {
-      notifier.info("startRecording() is disabled due to Redis");
-    } else {
-      wireMockApp.startRecording(recordSpec);
-    }
+    wireMockApp.startRecording(recordSpec);
   }
 
   @Override
@@ -606,11 +546,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   @Override
   public void shutdownServer() {
-    if (isRedisConfigured) {
-      notifier.importantInfo("shutdownServer() is disabled due to Redis");
-    } else {
-      wireMockApp.shutdownServer();
-    }
+    shutdown();
   }
 
   @Override

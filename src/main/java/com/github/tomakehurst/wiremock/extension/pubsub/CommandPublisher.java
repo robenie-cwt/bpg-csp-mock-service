@@ -19,6 +19,11 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.UUID;
 
 public interface CommandPublisher {
+
+  default boolean isNoOp() {
+    return true;
+  }
+
   void addStubMapping(StubMapping stubMapping);
 
   void editStubMapping(StubMapping stubMapping);

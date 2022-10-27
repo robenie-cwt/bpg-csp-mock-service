@@ -20,6 +20,14 @@ import java.util.UUID;
 
 public class NoOpCommandPublisher implements CommandPublisher {
 
+  private static final NoOpCommandPublisher INSTANCE = new NoOpCommandPublisher();
+
+  private NoOpCommandPublisher() {}
+
+  public static CommandPublisher getInstance() {
+    return INSTANCE;
+  }
+
   @Override
   public void addStubMapping(StubMapping stubMapping) {}
 

@@ -35,10 +35,15 @@ public class RedisCommandPublisher implements CommandPublisher {
   }
 
   @Override
+  public boolean isNoOp() {
+    return false;
+  }
+
+  @Override
   public void addStubMapping(StubMapping stubMapping) {
     String message = covertToString(stubMapping);
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.STUB_CREATE.getTopic(), message);
+      j.publish(Topics.STUB_CREATE.toString(), message);
     }
   }
 
@@ -46,70 +51,70 @@ public class RedisCommandPublisher implements CommandPublisher {
   public void editStubMapping(StubMapping stubMapping) {
     String message = covertToString(stubMapping);
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.STUB_UPDATE.getTopic(), message);
+      j.publish(Topics.STUB_UPDATE.toString(), message);
     }
   }
 
   @Override
   public void resetAll() {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.ALL_RESET.getTopic(), VALUE_ALL);
+      j.publish(Topics.ALL_RESET.toString(), VALUE_ALL);
     }
   }
 
   @Override
   public void resetRequests() {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.REQUESTS_RESET.getTopic(), VALUE_ALL);
+      j.publish(Topics.REQUESTS_RESET.toString(), VALUE_ALL);
     }
   }
 
   @Override
   public void resetToDefaultMappings() {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.MAPPINGS_RESET_DEFAULT.getTopic(), VALUE_ALL);
+      j.publish(Topics.MAPPINGS_RESET_DEFAULT.toString(), VALUE_ALL);
     }
   }
 
   @Override
   public void resetScenario(String name) {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.SCENARIO_RESET.getTopic(), name);
+      j.publish(Topics.SCENARIO_RESET.toString(), name);
     }
   }
 
   @Override
   public void resetScenarios() {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.SCENARIO_RESET.getTopic(), VALUE_ALL);
+      j.publish(Topics.SCENARIO_RESET.toString(), VALUE_ALL);
     }
   }
 
   @Override
   public void resetMappings() {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.MAPPINGS_RESET.getTopic(), VALUE_ALL);
+      j.publish(Topics.MAPPINGS_RESET.toString(), VALUE_ALL);
     }
   }
 
   @Override
   public void removeServeEvent(UUID eventId) {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.REMOVE_SERVE_EVENT.getTopic(), eventId.toString());
+      j.publish(Topics.REMOVE_SERVE_EVENT.toString(), eventId.toString());
     }
   }
 
   @Override
   public void removeStubMapping(UUID id) {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.STUB_DELETE.getTopic(), id.toString());
+      j.publish(Topics.STUB_DELETE.toString(), id.toString());
     }
   }
 
   @Override
   public void setScenarioState(String name, String state) {
     try (Jedis j = jedis.getResource()) {
-      j.publish(Topics.SCENARIO_SET.getTopic(), covertToString(new ScenarioMessage(name, state)));
+      j.publish(Topics.SCENARIO_SET.toString(), covertToString(new ScenarioMessage(name, state)));
     }
   }
 

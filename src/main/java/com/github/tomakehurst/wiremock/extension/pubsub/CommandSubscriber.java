@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.extension.pubsub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.UUID;
@@ -27,13 +28,17 @@ public class CommandSubscriber extends JedisPubSub {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   private final Admin admin;
+  private final Notifier notifier;
 
-  public CommandSubscriber(Admin admin) {
+  public CommandSubscriber(Admin admin, Notifier notifier) {
     this.admin = admin;
+    this.notifier = notifier;
   }
 
   @Override
   public void onMessage(String channel, String message) {
+    notifier.info(
+        String.format("Received a message at channel %s. Message: %s\n", channel, message));
     Topics topic = Topics.valueOf(channel);
     switch (topic) {
       case STUB_CREATE:
@@ -51,20 +56,8 @@ public class CommandSubscriber extends JedisPubSub {
       case SCENARIO_RESET:
         scenarioReset(message);
         break;
-      case MAPPINGS_RESET:
-        mappingsReset();
-        break;
       case MAPPINGS_RESET_DEFAULT:
         resetToDefaultMappings();
-        break;
-      case REMOVE_SERVE_EVENT:
-        removeServeEvent(message);
-        break;
-      case ALL_RESET:
-        resetAll();
-        break;
-      case REQUESTS_RESET:
-        resetRequests();
         break;
       default:
         break;
@@ -73,49 +66,33 @@ public class CommandSubscriber extends JedisPubSub {
 
   private void scenarioReset(String message) {
     if (RedisCommandPublisher.VALUE_ALL.equals(message)) {
-      admin.resetScenarios();
+      admin.resetScenariosExecute();
     } else {
-      admin.resetScenario(message);
+      admin.resetScenarioExecute(message);
     }
-  }
-
-  private void resetRequests() {
-    admin.resetRequests();
-  }
-
-  private void resetAll() {
-    admin.resetAll();
-  }
-
-  private void removeServeEvent(String message) {
-    admin.removeServeEvent(UUID.fromString(message));
   }
 
   private void resetToDefaultMappings() {
     admin.resetToDefaultMappings();
   }
 
-  private void mappingsReset() {
-    admin.resetMappings();
-  }
-
   private void scenarioSet(String message) {
     ScenarioMessage s = getScenarioMessage(message);
-    admin.setScenarioState(s.getScenarioName(), s.getScenarioState());
+    admin.setScenarioStateExecute(s.getScenarioName(), s.getScenarioState());
   }
 
   private void stubDelete(String message) {
-    admin.removeStubMapping(UUID.fromString(message));
+    admin.removeStubMappingExecute(UUID.fromString(message));
   }
 
   private void stubUpdate(String message) {
     StubMapping stub = getStubMapping(message);
-    admin.editStubMapping(stub);
+    admin.editStubMappingExecute(stub);
   }
 
   private void stubCreate(String message) {
     StubMapping stub = getStubMapping(message);
-    admin.addStubMapping(stub);
+    admin.addStubMappingExecute(stub);
   }
 
   private ScenarioMessage getScenarioMessage(String message) {

@@ -29,6 +29,9 @@ import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.pubsub.CommandPublisher;
+import com.github.tomakehurst.wiremock.extension.pubsub.NoOpCommandPublisher;
+import com.github.tomakehurst.wiremock.extension.pubsub.RedisCommandPublisher;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -50,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import redis.clients.jedis.JedisPool;
 
 public class WireMockApp implements StubServer, Admin {
 
@@ -69,6 +73,7 @@ public class WireMockApp implements StubServer, Admin {
   private final NearMissCalculator nearMissCalculator;
   private final Recorder recorder;
   private final List<GlobalSettingsListener> globalSettingsListeners;
+  private CommandPublisher publisher = NoOpCommandPublisher.getInstance();
 
   private Options options;
 
@@ -144,6 +149,11 @@ public class WireMockApp implements StubServer, Admin {
     recorder = new Recorder(this);
     globalSettingsListeners = Collections.emptyList();
     loadDefaultMappings();
+  }
+
+  public WireMockApp(Options options, Container container, JedisPool jedis) {
+    this(options, container);
+    this.publisher = new RedisCommandPublisher(jedis);
   }
 
   public AdminRequestHandler buildAdminRequestHandler() {
@@ -243,6 +253,15 @@ public class WireMockApp implements StubServer, Admin {
       stubMapping.setId(UUID.randomUUID());
     }
 
+    if (publisher.isNoOp()) {
+      addStubMappingExecute(stubMapping);
+    } else {
+      publisher.addStubMapping(stubMapping);
+    }
+  }
+
+  @Override
+  public void addStubMappingExecute(StubMapping stubMapping) {
     stubMappings.addMapping(stubMapping);
     if (stubMapping.shouldBePersisted()) {
       mappingsSaver.save(stubMapping);
@@ -264,6 +283,15 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void removeStubMapping(UUID id) {
+    if (publisher.isNoOp()) {
+      removeStubMappingExecute(id);
+    } else {
+      publisher.removeStubMapping(id);
+    }
+  }
+
+  @Override
+  public void removeStubMappingExecute(UUID id) {
     final Optional<StubMapping> maybeStub = stubMappings.get(id);
     if (maybeStub.isPresent()) {
       removeStubMapping(maybeStub.get());
@@ -272,6 +300,15 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void editStubMapping(StubMapping stubMapping) {
+    if (publisher.isNoOp()) {
+      editStubMappingExecute(stubMapping);
+    } else {
+      publisher.editStubMapping(stubMapping);
+    }
+  }
+
+  @Override
+  public void editStubMappingExecute(StubMapping stubMapping) {
     stubMappings.editMapping(stubMapping);
     if (stubMapping.shouldBePersisted()) {
       mappingsSaver.save(stubMapping);
@@ -308,6 +345,15 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void resetToDefaultMappings() {
+    if (publisher.isNoOp()) {
+      resetToDefaultMappingsExecute();
+    } else {
+      publisher.resetToDefaultMappings();
+    }
+  }
+
+  @Override
+  public void resetToDefaultMappingsExecute() {
     stubMappings.reset();
     resetRequests();
     loadDefaultMappings();
@@ -315,6 +361,15 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void resetScenarios() {
+    if (publisher.isNoOp()) {
+      resetScenariosExecute();
+    } else {
+      publisher.resetScenarios();
+    }
+  }
+
+  @Override
+  public void resetScenariosExecute() {
     stubMappings.resetScenarios();
   }
 
@@ -422,11 +477,29 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void resetScenario(String name) {
+    if (publisher.isNoOp()) {
+      resetScenarioExecute(name);
+    } else {
+      publisher.resetScenario(name);
+    }
+  }
+
+  @Override
+  public void resetScenarioExecute(String name) {
     scenarios.resetSingle(name);
   }
 
   @Override
   public void setScenarioState(String name, String state) {
+    if (publisher.isNoOp()) {
+      setScenarioStateExecute(name, state);
+    } else {
+      publisher.setScenarioState(name, state);
+    }
+  }
+
+  @Override
+  public void setScenarioStateExecute(String name, String state) {
     scenarios.setSingle(name, state);
   }
 

@@ -345,8 +345,7 @@ public class CommandLineOptions implements Options {
             "Maximum size for response bodies stored in the request journal beyond which truncation will be applied")
         .withRequiredArg();
     optionParser
-        .accepts(REDIS_CLUSTER_HOST, "The Redis cluster host used for stub replication")
-        .withRequiredArg();
+        .accepts(REDIS_CLUSTER_HOST, "The Redis cluster host used for stub replication");
     optionParser
         .accepts(REDIS_CLUSTER_PORT, "The Redis cluster port used for stub replication")
         .withRequiredArg()
