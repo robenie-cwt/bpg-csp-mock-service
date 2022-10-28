@@ -98,7 +98,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
       listener.requestReceived(processedRequest, response);
     }
 
-    beforeResponseSent(completedServeEvent, response);
+    //beforeResponseSent(completedServeEvent, response);
 
     stopwatch.reset();
     stopwatch.start();

@@ -32,7 +32,7 @@ import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.pubsub.CommandPublisher;
 import com.github.tomakehurst.wiremock.extension.pubsub.NoOpCommandPublisher;
 import com.github.tomakehurst.wiremock.extension.pubsub.RedisCommandPublisher;
-import com.github.tomakehurst.wiremock.extension.pubsub.ScenarioChangePostServceAction;
+import com.github.tomakehurst.wiremock.extension.pubsub.ScenarioStateStubRequestHandler;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -49,7 +49,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import redis.clients.jedis.JedisPool;
@@ -171,19 +170,10 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   public StubRequestHandler buildStubRequestHandler() {
-    Map<String, PostServeAction> postServeActions;
-    if (!publisher.isNoOp()) {
-      Map<String, PostServeAction> actions = new HashMap<>();
-      ScenarioChangePostServceAction scenarioChange = new ScenarioChangePostServceAction(publisher);
-      actions.put(scenarioChange.getName(), scenarioChange);
-      actions.putAll(options.extensionsOfType(PostServeAction.class));
-      postServeActions = ImmutableMap.copyOf(actions);
-    } else {
-      postServeActions = options.extensionsOfType(PostServeAction.class);
-    }
+    Map<String, PostServeAction> postServeActions = options.extensionsOfType(PostServeAction.class);
 
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
-    return new StubRequestHandler(
+    return new ScenarioStateStubRequestHandler(
         this,
         new StubResponseRenderer(
             options.filesRoot().child(FILES_ROOT),
@@ -203,7 +193,8 @@ public class WireMockApp implements StubServer, Admin {
         requestJournal,
         getStubRequestFilters(),
         options.getStubRequestLoggingDisabled(),
-        options.getDataTruncationSettings());
+        options.getDataTruncationSettings(),
+        publisher);
   }
 
   private List<RequestFilter> getAdminRequestFilters() {
