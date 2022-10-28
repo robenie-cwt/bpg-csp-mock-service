@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.pubsub;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.UUID;
@@ -25,8 +24,6 @@ import redis.clients.jedis.JedisPool;
 public class RedisCommandPublisher implements CommandPublisher {
 
   static final String VALUE_ALL = "_*****all*****_";
-
-  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   private final JedisPool jedis;
 

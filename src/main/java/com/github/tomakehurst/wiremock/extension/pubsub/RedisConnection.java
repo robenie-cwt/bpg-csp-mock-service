@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.extension.pubsub;
 
+import java.time.Duration;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisConnection {
 
@@ -25,9 +27,22 @@ public class RedisConnection {
 
   public static JedisPool getJedisInstance(String host, int port) {
     if (jedisInstance == null) {
+      final JedisPoolConfig poolConfig = new JedisPoolConfig();
+      poolConfig.setMaxTotal(10);
+      poolConfig.setMaxIdle(8);
+      poolConfig.setMinIdle(4);
+      poolConfig.setTestOnCreate(true);
+      poolConfig.setTestOnBorrow(true);
+      poolConfig.setTestOnReturn(true);
+      poolConfig.setTestWhileIdle(true);
+      poolConfig.setMinEvictableIdleTime(Duration.ofSeconds(60));
+      poolConfig.setTimeBetweenEvictionRuns(Duration.ofSeconds(30));
+      poolConfig.setNumTestsPerEvictionRun(3);
+      poolConfig.setBlockWhenExhausted(true);
+
       synchronized (JedisPool.class) {
         if (jedisInstance == null) {
-          jedisInstance = new JedisPool(host, port);
+          jedisInstance = new JedisPool(poolConfig, host, port);
         }
       }
     }

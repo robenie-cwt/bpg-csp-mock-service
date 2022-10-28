@@ -153,7 +153,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
                 notifier.importantInfo("Subscribing...");
                 j.subscribe(new CommandSubscriber(wireMockApp, notifier), channels);
-                notifier.info("Subscription ended...");
+                notifier.importantInfo("Subscription ended...");
               }
             })
         .start();
