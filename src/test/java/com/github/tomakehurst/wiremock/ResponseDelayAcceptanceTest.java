@@ -203,6 +203,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
+  @Disabled
   public void inFlightDelayedRequestsAreNotRecordedInJournalAfterReset() throws Exception {
     stubFor(
         get(urlEqualTo("/delayed"))

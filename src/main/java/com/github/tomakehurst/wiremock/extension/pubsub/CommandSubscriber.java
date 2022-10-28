@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.pubsub;
 
-import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -35,6 +34,14 @@ public class CommandSubscriber extends JedisPubSub {
 
   @Override
   public void onMessage(String channel, String message) {
+    try {
+      executeCommand(channel, message);
+    } catch (RuntimeException e) {
+      notifier.error("An error occurred while executing a command for " + channel, e);
+    }
+  }
+
+  private void executeCommand(String channel, String message) {
     Topics topic = Topics.valueOf(channel);
     switch (topic) {
       case STUB_CREATE:
@@ -87,10 +94,7 @@ public class CommandSubscriber extends JedisPubSub {
 
   private void scenarioSet(String message) {
     ScenarioMessage s = getScenarioMessage(message);
-    try {
-      admin.setScenarioStateExecute(s.getScenarioName(), s.getScenarioState());
-    } catch (InvalidInputException ignored) {
-    }
+    admin.setScenarioStateExecute(s.getScenarioName(), s.getScenarioState());
   }
 
   private void stubDelete(String message) {
