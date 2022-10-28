@@ -24,6 +24,7 @@ import redis.clients.jedis.JedisPool;
 public class RedisCommandPublisher implements CommandPublisher {
 
   static final String VALUE_ALL = "_*****all*****_";
+  public static final int DELAY_IN_MILLIS = 100;
 
   private final JedisPool jedis;
 
@@ -42,6 +43,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.STUB_CREATE.toString(), message);
     }
+    pause();
   }
 
   @Override
@@ -50,6 +52,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.STUB_UPDATE.toString(), message);
     }
+    pause();
   }
 
   @Override
@@ -57,6 +60,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.ALL_RESET.toString(), VALUE_ALL);
     }
+    pause();
   }
 
   @Override
@@ -64,6 +68,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.REQUESTS_RESET.toString(), VALUE_ALL);
     }
+    pause();
   }
 
   @Override
@@ -71,6 +76,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.MAPPINGS_RESET_DEFAULT.toString(), VALUE_ALL);
     }
+    pause();
   }
 
   @Override
@@ -78,6 +84,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.SCENARIO_RESET.toString(), name);
     }
+    pause();
   }
 
   @Override
@@ -85,6 +92,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.SCENARIO_RESET.toString(), VALUE_ALL);
     }
+    pause();
   }
 
   @Override
@@ -92,6 +100,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.MAPPINGS_RESET.toString(), VALUE_ALL);
     }
+    pause();
   }
 
   @Override
@@ -99,6 +108,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.REMOVE_SERVE_EVENT.toString(), eventId.toString());
     }
+    pause();
   }
 
   @Override
@@ -106,6 +116,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.STUB_DELETE.toString(), id.toString());
     }
+    pause();
   }
 
   @Override
@@ -113,9 +124,18 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.SCENARIO_SET.toString(), covertToString(new ScenarioMessage(name, state)));
     }
+    pause();
   }
 
   private String covertToString(Object object) {
     return Json.writeMin(object);
+  }
+
+  /** Allow propagating */
+  private void pause() {
+    try {
+      Thread.sleep(DELAY_IN_MILLIS);
+    } catch (InterruptedException ignored) {
+    }
   }
 }

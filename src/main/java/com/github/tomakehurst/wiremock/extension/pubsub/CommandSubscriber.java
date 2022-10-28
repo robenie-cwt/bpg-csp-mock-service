@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.pubsub;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Notifier;
@@ -25,8 +24,6 @@ import java.util.UUID;
 import redis.clients.jedis.JedisPubSub;
 
 public class CommandSubscriber extends JedisPubSub {
-
-  private final ObjectMapper objectMapper = new ObjectMapper();
 
   private final Admin admin;
   private final Notifier notifier;
@@ -59,7 +56,7 @@ public class CommandSubscriber extends JedisPubSub {
         scenarioSet(message);
         break;
       case SCENARIO_RESET:
-        notifier.info(
+        notifier.importantInfo(
             String.format("Received a message at channel %s. Message: %s", channel, message));
         scenarioReset(message);
         break;
