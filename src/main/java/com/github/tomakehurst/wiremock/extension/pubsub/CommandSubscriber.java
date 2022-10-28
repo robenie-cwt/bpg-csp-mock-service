@@ -51,7 +51,7 @@ public class CommandSubscriber extends JedisPubSub {
         stubDelete(message);
         break;
       case SCENARIO_SET:
-        notifier.importantInfo(
+        notifier.info(
             String.format("Received a message at channel %s. Message: %s", channel, message));
         scenarioSet(message);
         break;
@@ -61,12 +61,12 @@ public class CommandSubscriber extends JedisPubSub {
         scenarioReset(message);
         break;
       case MAPPINGS_RESET_DEFAULT:
-        notifier.info(
+        notifier.importantInfo(
             String.format("Received a message at channel %s. Message: %s", channel, message));
         resetToDefaultMappings();
         break;
       default:
-        notifier.info(
+        notifier.error(
             String.format(
                 "Received a message at an unknown channel %s. Message: %s", channel, message));
         break;
