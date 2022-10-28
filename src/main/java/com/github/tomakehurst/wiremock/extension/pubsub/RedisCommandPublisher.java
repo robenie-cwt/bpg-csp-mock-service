@@ -116,6 +116,6 @@ public class RedisCommandPublisher implements CommandPublisher {
   }
 
   private String covertToString(Object object) {
-    return Json.write(object);
+    return Json.writeMin(object);
   }
 }

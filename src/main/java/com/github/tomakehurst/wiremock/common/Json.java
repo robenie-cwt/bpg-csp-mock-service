@@ -74,6 +74,10 @@ public final class Json {
     return write(object, PublicView.class);
   }
 
+  public static <T> String writeMin(T object) {
+    return writeMin(object, PublicView.class);
+  }
+
   public static <T> String writePrivate(T object) {
     return write(object, PrivateView.class);
   }
@@ -82,6 +86,19 @@ public final class Json {
     try {
       ObjectMapper mapper = getObjectMapper();
       ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
+      if (view != null) {
+        objectWriter = objectWriter.withView(view);
+      }
+      return objectWriter.writeValueAsString(object);
+    } catch (IOException ioe) {
+      return throwUnchecked(ioe, String.class);
+    }
+  }
+
+  public static <T> String writeMin(T object, Class<?> view) {
+    try {
+      ObjectMapper mapper = getObjectMapper();
+      ObjectWriter objectWriter = mapper.writer();
       if (view != null) {
         objectWriter = objectWriter.withView(view);
       }
