@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.pubsub;
 
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -103,7 +104,12 @@ public class CommandSubscriber extends JedisPubSub {
 
   private void stubUpdate(String message) {
     StubMapping stub = getStubMapping(message);
-    admin.editStubMappingExecute(stub);
+    SingleStubMappingResult result = admin.getStubMapping(stub.getId());
+    if (result.isPresent()) {
+      admin.editStubMappingExecute(stub);
+    } else {
+      admin.addStubMappingExecute(stub);
+    }
   }
 
   private void stubCreate(String message) {

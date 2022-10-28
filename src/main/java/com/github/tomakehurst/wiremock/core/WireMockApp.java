@@ -270,6 +270,15 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void removeStubMapping(StubMapping stubMapping) {
+    UUID id = stubMapping.getId();
+    if (publisher.isNoOp()) {
+      removeStubMappingExecute(stubMapping);
+    } else {
+      publisher.removeStubMapping(id);
+    }
+  }
+
+  private void removeStubMappingExecute(StubMapping stubMapping) {
     final Optional<StubMapping> maybeStub = stubMappings.get(stubMapping.getId());
     if (maybeStub.isPresent()) {
       StubMapping stubToDelete = maybeStub.get();
@@ -294,7 +303,7 @@ public class WireMockApp implements StubServer, Admin {
   public void removeStubMappingExecute(UUID id) {
     final Optional<StubMapping> maybeStub = stubMappings.get(id);
     if (maybeStub.isPresent()) {
-      removeStubMapping(maybeStub.get());
+      removeStubMappingExecute(maybeStub.get());
     }
   }
 

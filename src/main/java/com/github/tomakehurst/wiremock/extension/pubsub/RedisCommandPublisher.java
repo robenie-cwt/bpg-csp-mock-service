@@ -53,7 +53,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.STUB_UPDATE.toString(), message);
     }
-    pause();
+    pause(8);
   }
 
   @Override
@@ -125,7 +125,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.SCENARIO_SET.toString(), covertToString(new ScenarioMessage(name, state)));
     }
-    pause(2);
+    pause(5);
   }
 
   private String covertToString(Object object) {
