@@ -201,7 +201,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '2.34.0.0-CWT-SNAPSHOT'
+  version = '2.35.0.9-CWT'
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
