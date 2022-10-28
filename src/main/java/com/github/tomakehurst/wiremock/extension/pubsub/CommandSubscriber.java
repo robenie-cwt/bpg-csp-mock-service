@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.pubsub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -37,29 +38,40 @@ public class CommandSubscriber extends JedisPubSub {
 
   @Override
   public void onMessage(String channel, String message) {
-    notifier.info(
-        String.format("Received a message at channel %s. Message: %s\n", channel, message));
     Topics topic = Topics.valueOf(channel);
     switch (topic) {
       case STUB_CREATE:
+        notifier.info(String.format("Received a message at channel %s.", channel));
         stubCreate(message);
         break;
       case STUB_UPDATE:
+        notifier.info(String.format("Received a message at channel %s.", channel));
         stubUpdate(message);
         break;
       case STUB_DELETE:
+        notifier.info(
+            String.format("Received a message at channel %s. Message: %s", channel, message));
         stubDelete(message);
         break;
       case SCENARIO_SET:
+        notifier.importantInfo(
+            String.format("Received a message at channel %s. Message: %s", channel, message));
         scenarioSet(message);
         break;
       case SCENARIO_RESET:
+        notifier.info(
+            String.format("Received a message at channel %s. Message: %s", channel, message));
         scenarioReset(message);
         break;
       case MAPPINGS_RESET_DEFAULT:
+        notifier.info(
+            String.format("Received a message at channel %s. Message: %s", channel, message));
         resetToDefaultMappings();
         break;
       default:
+        notifier.info(
+            String.format(
+                "Received a message at an unknown channel %s. Message: %s", channel, message));
         break;
     }
   }
@@ -78,7 +90,10 @@ public class CommandSubscriber extends JedisPubSub {
 
   private void scenarioSet(String message) {
     ScenarioMessage s = getScenarioMessage(message);
-    admin.setScenarioStateExecute(s.getScenarioName(), s.getScenarioState());
+    try {
+      admin.setScenarioStateExecute(s.getScenarioName(), s.getScenarioState());
+    } catch (InvalidInputException ignored) {
+    }
   }
 
   private void stubDelete(String message) {
