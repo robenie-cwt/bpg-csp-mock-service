@@ -44,7 +44,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.STUB_CREATE.toString(), message);
     }
-    pause();
+    pause(5);
   }
 
   @Override
@@ -125,7 +125,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.SCENARIO_SET.toString(), covertToString(new ScenarioMessage(name, state)));
     }
-    pause();
+    pause(2);
   }
 
   private String covertToString(Object object) {
@@ -134,8 +134,12 @@ public class RedisCommandPublisher implements CommandPublisher {
 
   /** Allow propagating */
   private void pause() {
+    pause(1);
+  }
+
+  private void pause(long num) {
     try {
-      Thread.sleep(DELAY_IN_MILLIS);
+      Thread.sleep(DELAY_IN_MILLIS * num);
     } catch (InterruptedException ignored) {
     }
   }

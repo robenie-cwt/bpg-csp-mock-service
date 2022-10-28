@@ -82,7 +82,7 @@ public class CommandSubscriber extends JedisPubSub {
   }
 
   private void resetToDefaultMappings() {
-    admin.resetToDefaultMappings();
+    admin.resetToDefaultMappingsExecute();
   }
 
   private void scenarioSet(String message) {
