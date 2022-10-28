@@ -24,7 +24,8 @@ import redis.clients.jedis.JedisPool;
 public class RedisCommandPublisher implements CommandPublisher {
 
   static final String VALUE_ALL = "_*****all*****_";
-  public static final int DELAY_IN_MILLIS = 100;
+
+  private static final int DELAY_IN_MILLIS = 200;
 
   private final JedisPool jedis;
 
