@@ -125,7 +125,7 @@ public class RedisCommandPublisher implements CommandPublisher {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.SCENARIO_SET.toString(), covertToString(new ScenarioMessage(name, state)));
     }
-    pause(5);
+    pause(3);
   }
 
   private String covertToString(Object object) {

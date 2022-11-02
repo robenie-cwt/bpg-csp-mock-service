@@ -71,7 +71,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
     notifier().info("Admin request received:\n" + formatRequest(request));
     String path = Urls.getPath(withoutAdminRoot(request.getUrl()));
-    if (RequestMethod.GET.equals(request.getMethod()) && "/mappings/".equals(path)) {
+    if ((RequestMethod.GET.equals(request.getMethod())
+            || RequestMethod.POST.equals(request.getMethod()))
+        && "/mappings/".equals(path)) {
       path = "/mappings";
     }
 
