@@ -115,4 +115,6 @@ public interface Options {
   boolean getDisableStrictHttpHeaders();
 
   DataTruncationSettings getDataTruncationSettings();
+
+  NetworkAddressRules getProxyTargetRules();
 }

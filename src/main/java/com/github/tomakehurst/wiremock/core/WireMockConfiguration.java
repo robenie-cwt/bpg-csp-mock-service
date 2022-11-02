@@ -124,6 +124,8 @@ public class WireMockConfiguration implements Options {
   private String redisClusterHost = null;
   private int redisClusterPort = 6379;
 
+  private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
+
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
       mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
@@ -467,6 +469,22 @@ public class WireMockConfiguration implements Options {
     return redisClusterPort;
   }
 
+  public WireMockConfiguration disableOptimizeXmlFactoriesLoading(
+      boolean disableOptimizeXmlFactoriesLoading) {
+    this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
+    return this;
+  }
+
+  public WireMockConfiguration maxLoggedResponseSize(int maxSize) {
+    this.responseBodySizeLimit = new Limit(maxSize);
+    return this;
+  }
+
+  public WireMockConfiguration limitProxyTargets(NetworkAddressRules proxyTargetRules) {
+    this.proxyTargetRules = proxyTargetRules;
+    return this;
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
@@ -642,12 +660,6 @@ public class WireMockConfiguration implements Options {
     return disableOptimizeXmlFactoriesLoading;
   }
 
-  public WireMockConfiguration disableOptimizeXmlFactoriesLoading(
-      boolean disableOptimizeXmlFactoriesLoading) {
-    this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
-    return this;
-  }
-
   @Override
   public boolean getDisableStrictHttpHeaders() {
     return disableStrictHttpHeaders;
@@ -680,8 +692,8 @@ public class WireMockConfiguration implements Options {
         .build();
   }
 
-  public WireMockConfiguration maxLoggedResponseSize(int maxSize) {
-    this.responseBodySizeLimit = new Limit(maxSize);
-    return this;
+  @Override
+  public NetworkAddressRules getProxyTargetRules() {
+    return proxyTargetRules;
   }
 }

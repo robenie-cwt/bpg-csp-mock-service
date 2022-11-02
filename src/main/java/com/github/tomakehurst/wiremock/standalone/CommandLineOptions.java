@@ -22,6 +22,8 @@ import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toSet;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
@@ -53,10 +55,7 @@ import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -119,8 +118,12 @@ public class CommandLineOptions implements Options {
   private static final String DISABLE_STRICT_HTTP_HEADERS = "disable-strict-http-headers";
   private static final String LOAD_RESOURCES_FROM_CLASSPATH = "load-resources-from-classpath";
   private static final String LOGGED_RESPONSE_BODY_SIZE_LIMIT = "logged-response-body-size-limit";
+
   private static final String REDIS_CLUSTER_HOST = "redis-cluster-host";
   private static final String REDIS_CLUSTER_PORT = "redis-cluster-port";
+
+  private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
+  private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
 
   private final OptionSet optionSet;
   private final FileSource fileSource;
@@ -351,6 +354,16 @@ public class CommandLineOptions implements Options {
         .accepts(REDIS_CLUSTER_PORT, "The Redis cluster port used for stub replication")
         .withRequiredArg()
         .defaultsTo("6379");
+    optionParser
+        .accepts(
+            ALLOW_PROXY_TARGETS,
+            "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that can be proxied to/recorded from. Is evaluated before the list of denied addresses.")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            DENY_PROXY_TARGETS,
+            "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
+        .withRequiredArg();
 
     optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -843,6 +856,23 @@ public class CommandLineOptions implements Options {
             new Limit(
                 Integer.parseInt((String) optionSet.valueOf(LOGGED_RESPONSE_BODY_SIZE_LIMIT))))
         : DataTruncationSettings.DEFAULTS;
+  }
+
+  @Override
+  public NetworkAddressRules getProxyTargetRules() {
+    final Set<NetworkAddressRange> allowed =
+        optionSet.has(ALLOW_PROXY_TARGETS)
+            ? Arrays.stream(((String) optionSet.valueOf(ALLOW_PROXY_TARGETS)).split(","))
+                .map(NetworkAddressRange::of)
+                .collect(toSet())
+            : ImmutableSet.of(NetworkAddressRange.ALL);
+    final Set<NetworkAddressRange> denied =
+        optionSet.has(DENY_PROXY_TARGETS)
+            ? Arrays.stream(((String) optionSet.valueOf(DENY_PROXY_TARGETS)).split(","))
+                .map(NetworkAddressRange::of)
+                .collect(toSet())
+            : emptySet();
+    return new NetworkAddressRules(allowed, denied);
   }
 
   @SuppressWarnings("unchecked")
