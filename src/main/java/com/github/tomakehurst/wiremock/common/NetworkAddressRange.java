@@ -19,6 +19,7 @@ import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public abstract class NetworkAddressRange {
@@ -28,8 +29,7 @@ public abstract class NetworkAddressRange {
   private static final Pattern SINGLE_IP =
       Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
   private static final Pattern IP_RANGE =
-      Pattern.compile(
-          "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+      Pattern.compile(SINGLE_IP.pattern() + "-" + SINGLE_IP.pattern());
 
   public static NetworkAddressRange of(String value) {
     if (SINGLE_IP.matcher(value).matches()) {
@@ -57,6 +57,19 @@ public abstract class NetworkAddressRange {
     public boolean isIncluded(String testValue) {
       return lookup(testValue).equals(inetAddress);
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      SingleIp singleIp = (SingleIp) o;
+      return inetAddress.equals(singleIp.inetAddress);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(inetAddress);
+    }
   }
 
   private static class IpRange extends NetworkAddressRange {
@@ -79,6 +92,19 @@ public abstract class NetworkAddressRange {
       BigInteger intVal = InetAddresses.toBigInteger(testValueAddress);
       return intVal.compareTo(start) >= 0 && intVal.compareTo(end) <= 0;
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      IpRange ipRange = (IpRange) o;
+      return start.equals(ipRange.start) && end.equals(ipRange.end);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(start, end);
+    }
   }
 
   private static class DomainNameWildcard extends NetworkAddressRange {
@@ -93,6 +119,19 @@ public abstract class NetworkAddressRange {
     @Override
     public boolean isIncluded(String testValue) {
       return namePattern.matcher(testValue).matches();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      DomainNameWildcard that = (DomainNameWildcard) o;
+      return namePattern.equals(that.namePattern);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(namePattern);
     }
   }
 
