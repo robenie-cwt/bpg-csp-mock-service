@@ -116,6 +116,10 @@ public class CommandLineOptions implements Options {
   private static final String DISABLE_STRICT_HTTP_HEADERS = "disable-strict-http-headers";
   private static final String LOAD_RESOURCES_FROM_CLASSPATH = "load-resources-from-classpath";
   private static final String LOGGED_RESPONSE_BODY_SIZE_LIMIT = "logged-response-body-size-limit";
+
+  private static final String REDIS_CLUSTER_HOST = "redis-cluster-host";
+  private static final String REDIS_CLUSTER_PORT = "redis-cluster-port";
+
   private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
   private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
 
@@ -341,6 +345,13 @@ public class CommandLineOptions implements Options {
             LOGGED_RESPONSE_BODY_SIZE_LIMIT,
             "Maximum size for response bodies stored in the request journal beyond which truncation will be applied")
         .withRequiredArg();
+    optionParser
+        .accepts(REDIS_CLUSTER_HOST, "The Redis cluster host used for stub replication")
+        .withOptionalArg();
+    optionParser
+        .accepts(REDIS_CLUSTER_PORT, "The Redis cluster port used for stub replication")
+        .withRequiredArg()
+        .defaultsTo("6379");
     optionParser
         .accepts(
             ALLOW_PROXY_TARGETS,
@@ -877,6 +888,16 @@ public class CommandLineOptions implements Options {
         .trustedProxyTargets((List<String>) optionSet.valuesOf(TRUST_PROXY_TARGET))
         .caKeyStoreSettings(keyStoreSettings)
         .build();
+  }
+
+  @Override
+  public String getRedisClusterHost() {
+    return (String) optionSet.valueOf(REDIS_CLUSTER_HOST);
+  }
+
+  @Override
+  public int getRedisClusterPort() {
+    return Integer.parseInt((String) optionSet.valueOf(REDIS_CLUSTER_PORT));
   }
 
   private Long getMaxTemplateCacheEntries() {

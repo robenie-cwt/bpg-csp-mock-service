@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.pubsub.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.HttpServer;
@@ -48,8 +49,11 @@ import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
@@ -63,11 +67,26 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   protected final WireMock client;
 
+  private final boolean isRedisConfigured;
+
   public WireMockServer(Options options) {
     this.options = options;
     this.notifier = options.notifier();
 
-    wireMockApp = new WireMockApp(options, this);
+    String redisClusterHost = options.getRedisClusterHost();
+    isRedisConfigured = redisClusterHost != null && !redisClusterHost.isEmpty();
+    if (isRedisConfigured) {
+      notifier.importantInfo(
+          "Connecting to Redis " + redisClusterHost + ":" + options.getRedisClusterPort());
+      JedisPool jedis =
+          RedisConnection.getJedisInstance(redisClusterHost, options.getRedisClusterPort());
+
+      wireMockApp = new WireMockApp(options, this, jedis);
+      subscribeToRedis(jedis, wireMockApp, notifier);
+    } else {
+      wireMockApp = new WireMockApp(options, this);
+      notifier.importantInfo("No Redis PubSub");
+    }
 
     this.stubRequestHandler = wireMockApp.buildStubRequestHandler();
     HttpServerFactory httpServerFactory = options.httpServerFactory();
@@ -123,6 +142,21 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public WireMockServer() {
     this(wireMockConfig());
+  }
+
+  private void subscribeToRedis(JedisPool jedis, WireMockApp wireMockApp, Notifier notifier) {
+    new Thread(
+            () -> {
+              try (Jedis j = jedis.getResource()) {
+                String[] channels =
+                    Arrays.stream(Topics.values()).map(Topics::toString).toArray(String[]::new);
+
+                notifier.importantInfo("Subscribing...");
+                j.subscribe(new CommandSubscriber(wireMockApp, notifier), channels);
+                notifier.importantInfo("Subscription ended...");
+              }
+            })
+        .start();
   }
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {

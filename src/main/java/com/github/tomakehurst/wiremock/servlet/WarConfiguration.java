@@ -50,6 +50,16 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public String getRedisClusterHost() {
+    return servletContext.getInitParameter("redisClusterHost");
+  }
+
+  @Override
+  public int getRedisClusterPort() {
+    return Integer.parseInt(servletContext.getInitParameter("redisClusterPort"));
+  }
+
+  @Override
   public int portNumber() {
     return 0;
   }

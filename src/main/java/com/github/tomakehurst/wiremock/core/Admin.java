@@ -32,11 +32,17 @@ public interface Admin {
 
   void addStubMapping(StubMapping stubMapping);
 
+  default void addStubMappingExecute(StubMapping stubMapping) {}
+
   void editStubMapping(StubMapping stubMapping);
 
-  void removeStubMapping(StubMapping stubbMapping);
+  default void editStubMappingExecute(StubMapping stubMapping) {}
+
+  void removeStubMapping(StubMapping stubMapping);
 
   void removeStubMapping(UUID id);
+
+  default void removeStubMappingExecute(UUID id) {}
 
   ListStubMappingsResult listAllStubMappings();
 
@@ -48,11 +54,15 @@ public interface Admin {
 
   void resetScenarios();
 
+  default void resetScenariosExecute() {};
+
   void resetMappings();
 
   void resetAll();
 
   void resetToDefaultMappings();
+
+  default void resetToDefaultMappingsExecute() {}
 
   GetServeEventsResult getServeEvents();
 
@@ -72,6 +82,8 @@ public interface Admin {
 
   FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern pattern);
 
+  default void setScenarioStateExecute(String name, String state) {}
+
   FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
 
   FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
@@ -81,6 +93,8 @@ public interface Admin {
   GetScenariosResult getAllScenarios();
 
   void resetScenario(String name);
+
+  default void resetScenarioExecute(String name) {}
 
   void setScenarioState(String name, String state);
 

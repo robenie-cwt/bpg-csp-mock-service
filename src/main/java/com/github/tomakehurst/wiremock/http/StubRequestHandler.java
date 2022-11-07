@@ -32,7 +32,7 @@ import java.util.Map;
 public class StubRequestHandler extends AbstractRequestHandler {
 
   private final StubServer stubServer;
-  private final Admin admin;
+  protected final Admin admin;
   private final Map<String, PostServeAction> postServeActions;
   private final RequestJournal requestJournal;
   private final boolean loggingDisabled;

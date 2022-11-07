@@ -36,6 +36,11 @@ public class Slf4jNotifier implements Notifier {
   }
 
   @Override
+  public void importantInfo(String message) {
+    log.info(message);
+  }
+
+  @Override
   public void error(String message) {
     log.error(message);
   }

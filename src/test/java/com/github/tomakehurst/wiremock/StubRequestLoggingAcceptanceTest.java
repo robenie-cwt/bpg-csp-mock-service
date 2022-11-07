@@ -73,6 +73,11 @@ public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Override
+    public void importantInfo(String message) {
+      // Do nothing
+    }
+
+    @Override
     public void error(String message) {}
 
     @Override

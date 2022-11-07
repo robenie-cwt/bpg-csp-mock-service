@@ -21,6 +21,10 @@ public interface Notifier {
 
   void info(String message);
 
+  default void importantInfo(String message) {
+    info(message);
+  }
+
   void error(String message);
 
   void error(String message, Throwable t);
