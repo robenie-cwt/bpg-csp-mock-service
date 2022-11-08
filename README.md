@@ -1,14 +1,6 @@
 WireMock - a web service test double for all occasions
 ======================================================
 
-[![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
-
-!!! Log4j notice !!!
---------------------
-WireMock only uses log4j in its test dependencies. Neither the thin nor standalone JAR depends on or embeds log4j, so
-you can continue to use WireMock 2.32.0 and above without any risk of exposure to the recently discovered vulnerability. 
-
 Key Features
 ------------
 	
@@ -19,12 +11,28 @@ Key Features
 -	Record/playback of stubs
 -	Fault injection
 -	Per-request conditional proxying
--   Browser proxying for request inspection and replacement
+-	Browser proxying for request inspection and replacement
 -	Stateful behaviour simulation
 -	Configurable response delays
- 
 
 Full documentation can be found at [wiremock.org](http://wiremock.org/ "wiremock.org")
+
+Additional feature of this fork
+------------
+ 
+ -	Support for multiple instances with stub and scenario synchronization
+ -	Synced commands
+ 	-	Stub creation
+	-	Stub updated
+	-	Stub deletion
+	-	Stub state
+	-	Stub reset
+
+Performance degradation of this fork
+------------
+
+-	Syncrhonization has a performance hit when scernario based stubs are being served making this unsuitable for performance testing
+-	Syncrhonization has a performance hit when adding, updating, and deleting stubs via HTTP. Please add stubs via [BPG Wiremock](https://github.com/cwt-dev/bpg-wiremock) repository instead
 
 Questions and Issues
 --------------------
@@ -59,9 +67,9 @@ To build both JARs (thin and standalone):
 
 The built JAR will be placed under ``build/libs``.
 
-To publish both JARs to your local Maven repository:
+To publish both JARs to Nexus:
 
 ```bash
-./gradlew publishToMavenLocal
+./gradlew publish
 ```
 
