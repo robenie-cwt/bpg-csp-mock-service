@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+@Disabled
 public class ResponseDribbleAcceptanceTest {
 
   private static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
@@ -68,7 +69,6 @@ public class ResponseDribbleAcceptanceTest {
   }
 
   @Test
-  @Disabled
   public void requestIsSuccessfulButTakesLongerThanSocketTimeoutWhenDribbleIsEnabled()
       throws Exception {
     doNotRunOnMacOSXInCI();
