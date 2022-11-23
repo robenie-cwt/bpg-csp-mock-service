@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.github.tomakehurst.wiremock.http.Response.response;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
@@ -24,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -124,9 +126,22 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     }
     CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
     try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
+      HttpHeaders headers = headersFrom(httpResponse, responseDefinition);
+
+      StubMapping stubMapping = serveEvent.getStubMapping();
+      if (stubMapping != null) {
+        headers =
+            firstNonNull(headers, new HttpHeaders())
+                .plus(new HttpHeader("Matched-Stub-Id", stubMapping.getId().toString()));
+
+        if (stubMapping.getName() != null) {
+          headers = headers.plus(new HttpHeader("Matched-Stub-Name", stubMapping.getName()));
+        }
+      }
+
       return response()
           .status(httpResponse.getCode())
-          .headers(headersFrom(httpResponse, responseDefinition))
+          .headers(headers)
           .body(getEntityAsByteArrayAndCloseStream(httpResponse))
           .fromProxy(true)
           .configureDelay(
