@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -25,9 +26,11 @@ import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 
@@ -71,6 +74,26 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
   @Override
   protected void afterResponseSent(ServeEvent serveEvent, Response response) {
+    Timing timing = serveEvent.getTiming();
+
+    StubMapping stubMapping = serveEvent.getStubMapping();
+    UUID id = stubMapping == null ? null : stubMapping.getId();
+    notifier()
+        .importantInfo(
+            "Stub response for "
+                + id
+                + " sent in "
+                + timing.getTotalTime()
+                + "ms. Is from proxy: "
+                + response.isFromProxy()
+                + ". Breakdown: Added delay="
+                + timing.getAddedDelay()
+                + "ms; Process time="
+                + timing.getProcessTime()
+                + "ms; Response send time="
+                + timing.getResponseSendTime()
+                + "ms");
+
     for (PostServeAction postServeAction : postServeActions.values()) {
       postServeAction.doGlobalAction(serveEvent, admin);
     }

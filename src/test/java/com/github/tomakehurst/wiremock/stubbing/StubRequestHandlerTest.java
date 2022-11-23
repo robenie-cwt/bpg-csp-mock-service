@@ -133,7 +133,7 @@ public class StubRequestHandlerTest {
     notifier.revert();
 
     assertThat(notifier.getErrorMessages().isEmpty(), is(true));
-    assertThat(notifier.getInfoMessages().size(), is(1));
+    assertThat(notifier.getInfoMessages().size(), is(2));
     assertThat(notifier.getInfoMessages().get(0), containsString("1.2.3.5 - GET /"));
   }
 }
