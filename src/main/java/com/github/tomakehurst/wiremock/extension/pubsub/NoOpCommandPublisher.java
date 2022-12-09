@@ -32,7 +32,13 @@ public class NoOpCommandPublisher implements CommandPublisher {
   public void addStubMapping(StubMapping stubMapping) {}
 
   @Override
+  public void addStubMapping(StubMapping stubMapping, boolean withDelay) {}
+
+  @Override
   public void editStubMapping(StubMapping stubMapping) {}
+
+  @Override
+  public void editStubMapping(StubMapping stubMapping, boolean withDelay) {}
 
   @Override
   public void resetAll() {}

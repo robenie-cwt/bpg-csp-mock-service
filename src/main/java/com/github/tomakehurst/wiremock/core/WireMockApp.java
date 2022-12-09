@@ -269,6 +269,18 @@ public class WireMockApp implements StubServer, Admin {
     }
   }
 
+  private void addStubMapping(StubMapping stubMapping, boolean withDelay) {
+    if (stubMapping.getId() == null) {
+      stubMapping.setId(UUID.randomUUID());
+    }
+
+    if (publisher.isNoOp()) {
+      addStubMappingExecute(stubMapping);
+    } else {
+      publisher.addStubMapping(stubMapping, withDelay);
+    }
+  }
+
   @Override
   public void removeStubMapping(StubMapping stubMapping) {
     UUID id = stubMapping.getId();
@@ -314,6 +326,14 @@ public class WireMockApp implements StubServer, Admin {
       editStubMappingExecute(stubMapping);
     } else {
       publisher.editStubMapping(stubMapping);
+    }
+  }
+
+  private void editStubMapping(StubMapping stubMapping, boolean withDelay) {
+    if (publisher.isNoOp()) {
+      editStubMappingExecute(stubMapping);
+    } else {
+      publisher.editStubMapping(stubMapping, withDelay);
     }
   }
 
@@ -619,10 +639,10 @@ public class WireMockApp implements StubServer, Admin {
       StubMapping mapping = mappings.get(i);
       if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
         if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
-          editStubMapping(mapping);
+          editStubMapping(mapping, i == 0);
         }
       } else {
-        addStubMapping(mapping);
+        addStubMapping(mapping, i == 0);
       }
     }
 

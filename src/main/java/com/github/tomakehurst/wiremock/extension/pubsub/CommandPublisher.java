@@ -26,7 +26,11 @@ public interface CommandPublisher {
 
   void addStubMapping(StubMapping stubMapping);
 
+  void addStubMapping(StubMapping stubMapping, boolean withDelay);
+
   void editStubMapping(StubMapping stubMapping);
+
+  void editStubMapping(StubMapping stubMapping, boolean withDelay);
 
   void resetAll();
 
