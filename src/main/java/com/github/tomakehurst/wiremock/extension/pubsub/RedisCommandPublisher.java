@@ -40,20 +40,34 @@ public class RedisCommandPublisher implements CommandPublisher {
 
   @Override
   public void addStubMapping(StubMapping stubMapping) {
+    addStubMapping(stubMapping, true);
+  }
+
+  @Override
+  public void addStubMapping(StubMapping stubMapping, boolean withDelay) {
     String message = covertToString(stubMapping);
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.STUB_CREATE.toString(), message);
     }
-    pause(8);
+    if (withDelay) {
+      pause(8);
+    }
   }
 
   @Override
   public void editStubMapping(StubMapping stubMapping) {
+    editStubMapping(stubMapping, true);
+  }
+
+  @Override
+  public void editStubMapping(StubMapping stubMapping, boolean withDelay) {
     String message = covertToString(stubMapping);
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.STUB_UPDATE.toString(), message);
     }
-    pause(8);
+    if (withDelay) {
+      pause(8);
+    }
   }
 
   @Override
