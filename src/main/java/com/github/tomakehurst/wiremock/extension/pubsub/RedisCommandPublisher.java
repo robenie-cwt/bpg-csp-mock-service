@@ -128,10 +128,18 @@ public class RedisCommandPublisher implements CommandPublisher {
 
   @Override
   public void removeStubMapping(UUID id) {
+    removeStubMapping(id, true);
+  }
+
+  @Override
+  public void removeStubMapping(UUID id, boolean withDelay) {
     try (Jedis j = jedis.getResource()) {
       j.publish(Topics.STUB_DELETE.toString(), id.toString());
     }
-    pause();
+
+    if (withDelay) {
+      pause();
+    }
   }
 
   @Override
