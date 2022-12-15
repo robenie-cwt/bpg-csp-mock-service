@@ -48,5 +48,7 @@ public interface CommandPublisher {
 
   void removeStubMapping(UUID id);
 
+  void removeStubMapping(UUID id, boolean withDelay);
+
   void setScenarioState(String name, String state);
 }

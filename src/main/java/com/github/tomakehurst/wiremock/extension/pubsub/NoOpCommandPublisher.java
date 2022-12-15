@@ -65,5 +65,8 @@ public class NoOpCommandPublisher implements CommandPublisher {
   public void removeStubMapping(UUID id) {}
 
   @Override
+  public void removeStubMapping(UUID id, boolean withDelay) {}
+
+  @Override
   public void setScenarioState(String name, String state) {}
 }

@@ -291,6 +291,15 @@ public class WireMockApp implements StubServer, Admin {
     }
   }
 
+  private void removeStubMapping(StubMapping stubMapping, boolean withDelay) {
+    UUID id = stubMapping.getId();
+    if (publisher.isNoOp()) {
+      removeStubMappingExecute(stubMapping);
+    } else {
+      publisher.removeStubMapping(id, withDelay);
+    }
+  }
+
   private void removeStubMappingExecute(StubMapping stubMapping) {
     final Optional<StubMapping> maybeStub = stubMappings.get(stubMapping.getId());
     if (maybeStub.isPresent()) {
@@ -624,8 +633,9 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public void removeStubsByMetadata(StringValuePattern pattern) {
     List<StubMapping> foundMappings = stubMappings.findByMetadata(pattern);
-    for (StubMapping mapping : foundMappings) {
-      removeStubMapping(mapping);
+    for (int i = foundMappings.size() - 1; i >= 0; i--) {
+      StubMapping mapping = foundMappings.get(i);
+      removeStubMapping(mapping, i == 0);
     }
   }
 
