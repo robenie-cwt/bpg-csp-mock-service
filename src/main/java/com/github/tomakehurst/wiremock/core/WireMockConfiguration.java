@@ -123,6 +123,8 @@ public class WireMockConfiguration implements Options {
 
   private String redisClusterHost = null;
   private int redisClusterPort = 6379;
+  private String redisClusterUser = null;
+  private String redisClusterPassword = null;
 
   private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
 
@@ -459,6 +461,16 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration redisClusterUser(String redisClusterUser) {
+    this.redisClusterUser = redisClusterUser;
+    return this;
+  }
+
+  public WireMockConfiguration redisClusterPassword(String redisClusterPassword) {
+    this.redisClusterPassword = redisClusterPassword;
+    return this;
+  }
+
   @Override
   public String getRedisClusterHost() {
     return redisClusterHost;
@@ -467,6 +479,16 @@ public class WireMockConfiguration implements Options {
   @Override
   public int getRedisClusterPort() {
     return redisClusterPort;
+  }
+
+  @Override
+  public String getRedisClusterUser() {
+    return redisClusterUser;
+  }
+
+  @Override
+  public String getRedisClusterPassword() {
+    return redisClusterPassword;
   }
 
   public WireMockConfiguration disableOptimizeXmlFactoriesLoading(

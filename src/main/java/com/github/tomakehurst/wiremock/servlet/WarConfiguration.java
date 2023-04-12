@@ -60,6 +60,16 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public String getRedisClusterUser() {
+    return servletContext.getInitParameter("redisClusterUser");
+  }
+
+  @Override
+  public String getRedisClusterPassword() {
+    return servletContext.getInitParameter("redisClusterPassword");
+  }
+
+  @Override
   public int portNumber() {
     return 0;
   }
