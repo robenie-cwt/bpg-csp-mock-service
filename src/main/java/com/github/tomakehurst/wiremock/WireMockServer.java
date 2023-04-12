@@ -79,7 +79,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
       notifier.importantInfo(
           "Connecting to Redis " + redisClusterHost + ":" + options.getRedisClusterPort());
       JedisPool jedis =
-          RedisConnection.getJedisInstance(redisClusterHost, options.getRedisClusterPort());
+          RedisConnection.getJedisInstance(
+              redisClusterHost,
+              options.getRedisClusterPort(),
+              options.getRedisClusterUser(),
+              options.getRedisClusterPassword());
 
       wireMockApp = new WireMockApp(options, this, jedis);
       subscribeToRedis(jedis, wireMockApp, notifier);
@@ -153,7 +157,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
                 notifier.importantInfo("Subscribing...");
                 j.subscribe(new CommandSubscriber(wireMockApp, notifier), channels);
-                notifier.importantInfo("Subscription ended...");
+                notifier.importantInfo("Subscription ended... Will terminate!");
+                System.exit(10);
               }
             })
         .start();

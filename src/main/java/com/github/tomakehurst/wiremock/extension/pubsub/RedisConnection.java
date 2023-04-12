@@ -25,24 +25,28 @@ public class RedisConnection {
 
   private RedisConnection() {}
 
-  public static JedisPool getJedisInstance(String host, int port) {
+  public static JedisPool getJedisInstance(String host, int port, String user, String password) {
     if (jedisInstance == null) {
       final JedisPoolConfig poolConfig = new JedisPoolConfig();
-      poolConfig.setMaxTotal(10);
-      poolConfig.setMaxIdle(8);
-      poolConfig.setMinIdle(4);
-      poolConfig.setTestOnCreate(true);
+      poolConfig.setMaxTotal(20);
+      poolConfig.setMaxIdle(10);
+      poolConfig.setMinIdle(5);
       poolConfig.setTestOnBorrow(true);
-      poolConfig.setTestOnReturn(true);
-      poolConfig.setTestWhileIdle(true);
       poolConfig.setMinEvictableIdleTime(Duration.ofSeconds(60));
       poolConfig.setTimeBetweenEvictionRuns(Duration.ofSeconds(30));
       poolConfig.setNumTestsPerEvictionRun(3);
       poolConfig.setBlockWhenExhausted(true);
+      poolConfig.setMaxWait(Duration.ofSeconds(5));
 
       synchronized (JedisPool.class) {
         if (jedisInstance == null) {
-          jedisInstance = new JedisPool(poolConfig, host, port);
+          if (user != null && !user.isEmpty()) {
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000, user, password);
+          } else if (password != null && !password.isEmpty()) {
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000, password);
+          } else {
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000);
+          }
         }
       }
     }

@@ -34,6 +34,10 @@ public interface Options {
 
   int getRedisClusterPort();
 
+  String getRedisClusterUser();
+
+  String getRedisClusterPassword();
+
   enum ChunkedEncodingPolicy {
     ALWAYS,
     NEVER,
