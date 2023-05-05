@@ -41,11 +41,17 @@ public class RedisConnection {
       synchronized (JedisPool.class) {
         if (jedisInstance == null) {
           if (user != null && !user.isEmpty()) {
-            jedisInstance = new JedisPool(poolConfig, host, port, 5000, user, password);
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000, user, password, false);
           } else if (password != null && !password.isEmpty()) {
-            jedisInstance = new JedisPool(poolConfig, host, port, 5000, password);
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000, password, false);
           } else {
-            jedisInstance = new JedisPool(poolConfig, host, port, 5000);
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000, false);
+          }
+
+          if (!jedisInstance.getResource().isConnected()
+              || jedisInstance.getResource().isBroken()) {
+            throw new RedisConnectionException(
+                "Cannot connect to Redis or the connection established was broken!");
           }
         }
       }

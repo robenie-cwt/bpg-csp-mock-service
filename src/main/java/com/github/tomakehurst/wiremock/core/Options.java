@@ -34,6 +34,8 @@ public interface Options {
 
   int getRedisClusterPort();
 
+  boolean getRedisClusterSsl();
+
   String getRedisClusterUser();
 
   String getRedisClusterPassword();

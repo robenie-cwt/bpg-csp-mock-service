@@ -120,6 +120,7 @@ public class CommandLineOptions implements Options {
   private static final String REDIS_CLUSTER_HOST = "redis-cluster-host";
   private static final String REDIS_CLUSTER_PORT = "redis-cluster-port";
   private static final String REDIS_CLUSTER_USER = "redis-cluster-user";
+  private static final String REDIS_CLUSTER_SSL = "redis-cluster-ssl";
   private static final String REDIS_CLUSTER_PASSWORD = "redis-cluster-password";
 
   private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
@@ -354,6 +355,11 @@ public class CommandLineOptions implements Options {
         .accepts(REDIS_CLUSTER_PORT, "The Redis cluster port used for stub replication")
         .withRequiredArg()
         .defaultsTo("6379");
+    optionParser
+        .accepts(REDIS_CLUSTER_SSL, "The Redis cluster port used for stub replication")
+        .withRequiredArg()
+        .defaultsTo("false");
+
     optionParser.accepts(REDIS_CLUSTER_USER, "The Redis cluster user").withOptionalArg();
     optionParser.accepts(REDIS_CLUSTER_PASSWORD, "The Redis cluster password").withOptionalArg();
     optionParser
@@ -902,6 +908,11 @@ public class CommandLineOptions implements Options {
   @Override
   public int getRedisClusterPort() {
     return Integer.parseInt((String) optionSet.valueOf(REDIS_CLUSTER_PORT));
+  }
+
+  @Override
+  public boolean getRedisClusterSsl() {
+    return Boolean.parseBoolean((String) optionSet.valueOf(REDIS_CLUSTER_SSL));
   }
 
   @Override
