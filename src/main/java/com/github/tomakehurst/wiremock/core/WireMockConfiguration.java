@@ -123,6 +123,7 @@ public class WireMockConfiguration implements Options {
 
   private String redisClusterHost = null;
   private int redisClusterPort = 6379;
+  private boolean redisClusterSsl = false;
   private String redisClusterUser = null;
   private String redisClusterPassword = null;
 
@@ -461,6 +462,11 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration redisClusterPort(boolean redisClusterSsl) {
+    this.redisClusterSsl = redisClusterSsl;
+    return this;
+  }
+
   public WireMockConfiguration redisClusterUser(String redisClusterUser) {
     this.redisClusterUser = redisClusterUser;
     return this;
@@ -479,6 +485,11 @@ public class WireMockConfiguration implements Options {
   @Override
   public int getRedisClusterPort() {
     return redisClusterPort;
+  }
+
+  @Override
+  public boolean getRedisClusterSsl() {
+    return redisClusterSsl;
   }
 
   @Override

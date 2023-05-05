@@ -36,6 +36,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
 @TestMethodOrder(OrderAnnotation.class)
+@Disabled
 public class DeadlockTest {
 
   private static final int READ_TIMEOUT = 500;

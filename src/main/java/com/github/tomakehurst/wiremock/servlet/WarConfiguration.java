@@ -60,6 +60,11 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public boolean getRedisClusterSsl() {
+    return Boolean.parseBoolean(servletContext.getInitParameter("redisClusterSsl"));
+  }
+
+  @Override
   public String getRedisClusterUser() {
     return servletContext.getInitParameter("redisClusterUser");
   }
