@@ -42,7 +42,7 @@ public class RedisConnection {
       synchronized (JedisPool.class) {
         if (jedisInstance == null) {
           if (user != null && !user.isEmpty()) {
-            jedisInstance = new JedisPool(poolConfig, host, port, 5000, user, password, false);
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000, user, password, isSsl);
           } else if (password != null && !password.isEmpty()) {
             jedisInstance = new JedisPool(poolConfig, host, port, 5000, password, isSsl);
           } else {
