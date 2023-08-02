@@ -83,7 +83,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
               redisClusterHost,
               options.getRedisClusterPort(),
               options.getRedisClusterUser(),
-              options.getRedisClusterPassword());
+              options.getRedisClusterPassword(),
+              options.getRedisClusterSsl());
 
       wireMockApp = new WireMockApp(options, this, jedis);
       subscribeToRedis(jedis, wireMockApp, notifier);

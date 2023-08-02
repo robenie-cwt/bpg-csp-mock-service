@@ -25,7 +25,8 @@ public class RedisConnection {
 
   private RedisConnection() {}
 
-  public static JedisPool getJedisInstance(String host, int port, String user, String password) {
+  public static JedisPool getJedisInstance(
+      String host, int port, String user, String password, boolean isSsl) {
     if (jedisInstance == null) {
       final JedisPoolConfig poolConfig = new JedisPoolConfig();
       poolConfig.setMaxTotal(20);
@@ -43,9 +44,9 @@ public class RedisConnection {
           if (user != null && !user.isEmpty()) {
             jedisInstance = new JedisPool(poolConfig, host, port, 5000, user, password, false);
           } else if (password != null && !password.isEmpty()) {
-            jedisInstance = new JedisPool(poolConfig, host, port, 5000, password, false);
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000, password, isSsl);
           } else {
-            jedisInstance = new JedisPool(poolConfig, host, port, 5000, false);
+            jedisInstance = new JedisPool(poolConfig, host, port, 5000, isSsl);
           }
 
           if (!jedisInstance.getResource().isConnected()
