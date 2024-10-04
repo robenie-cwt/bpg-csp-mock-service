@@ -201,7 +201,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '2.35.0.22-CWT'
+  version = '2.35.0.26-CWT'
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
@@ -275,30 +275,6 @@ shadowJar {
     project.configurations.standaloneOnly
   ]
   archiveBaseName.set('wiremock-jre8-standalone')
-
-  relocate "org.mortbay", 'wiremock.org.mortbay'
-  relocate "org.eclipse", 'wiremock.org.eclipse'
-  relocate "org.codehaus", 'wiremock.org.codehaus'
-  relocate "com.google", 'wiremock.com.google'
-  relocate "com.google.thirdparty", 'wiremock.com.google.thirdparty'
-  relocate "com.fasterxml.jackson", 'wiremock.com.fasterxml.jackson'
-  relocate "org.apache", 'wiremock.org.apache'
-  relocate "org.xmlunit", 'wiremock.org.xmlunit'
-  relocate "org.hamcrest", 'wiremock.org.hamcrest'
-  relocate "org.skyscreamer", 'wiremock.org.skyscreamer'
-  relocate "org.json", 'wiremock.org.json'
-  relocate "net.minidev", 'wiremock.net.minidev'
-  relocate "com.jayway", 'wiremock.com.jayway'
-  relocate "org.objectweb", 'wiremock.org.objectweb'
-  relocate "org.custommonkey", "wiremock.org.custommonkey"
-  relocate "net.javacrumbs", "wiremock.net.javacrumbs"
-  relocate "net.sf", "wiremock.net.sf"
-  relocate "com.github.jknack", "wiremock.com.github.jknack"
-  relocate "org.antlr", "wiremock.org.antlr"
-  relocate "javax.servlet", "wiremock.javax.servlet"
-  relocate "org.checkerframework", "wiremock.org.checkerframework"
-  relocate "org.hamcrest", "wiremock.org.hamcrest"
-  relocate "org.slf4j", "wiremock.org.slf4j"
 
   dependencies {
     exclude(dependency('junit:junit'))
