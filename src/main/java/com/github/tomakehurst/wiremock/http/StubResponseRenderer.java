@@ -94,16 +94,21 @@ public class StubResponseRenderer implements ResponseRenderer {
 
     HttpHeaders headers = responseDefinition.getHeaders();
     StubMapping stubMapping = serveEvent.getStubMapping();
-    if (serveEvent.getWasMatched() && stubMapping != null) {
+    if (stubMapping != null) {
+      String spanAttrName = serveEvent.getWasMatched() ? "matched" : "served";
+      String httpHeaderName = serveEvent.getWasMatched() ? "Matched" : "Served";
+
       String stubId = stubMapping.getId().toString();
       Span span = Span.current();
-      span.setAttribute("stub.matched.id", stubId);
+      span.setAttribute("stub." + spanAttrName + ".id", stubId);
       headers =
-          firstNonNull(headers, new HttpHeaders()).plus(new HttpHeader("Matched-Stub-Id", stubId));
+          firstNonNull(headers, new HttpHeaders())
+              .plus(new HttpHeader(httpHeaderName + "-Stub-Id", stubId));
 
       if (stubMapping.getName() != null) {
-        headers = headers.plus(new HttpHeader("Matched-Stub-Name", stubMapping.getName()));
-        span.setAttribute("stub.matched.name", stubMapping.getName());
+        headers =
+            headers.plus(new HttpHeader(httpHeaderName + "-Stub-Name", stubMapping.getName()));
+        span.setAttribute("stub." + spanAttrName + ".name", stubMapping.getName());
       }
     }
 
