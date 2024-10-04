@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import io.opentelemetry.api.trace.Span;
 import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
@@ -94,12 +95,15 @@ public class StubResponseRenderer implements ResponseRenderer {
     HttpHeaders headers = responseDefinition.getHeaders();
     StubMapping stubMapping = serveEvent.getStubMapping();
     if (serveEvent.getWasMatched() && stubMapping != null) {
+      String stubId = stubMapping.getId().toString();
+      Span span = Span.current();
+      span.setAttribute("stub.matched.id", stubId);
       headers =
-          firstNonNull(headers, new HttpHeaders())
-              .plus(new HttpHeader("Matched-Stub-Id", stubMapping.getId().toString()));
+          firstNonNull(headers, new HttpHeaders()).plus(new HttpHeader("Matched-Stub-Id", stubId));
 
       if (stubMapping.getName() != null) {
         headers = headers.plus(new HttpHeader("Matched-Stub-Name", stubMapping.getName()));
+        span.setAttribute("stub.matched.name", stubMapping.getName());
       }
     }
 

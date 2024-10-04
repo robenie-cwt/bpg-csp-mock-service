@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -26,6 +27,7 @@ import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import io.opentelemetry.api.trace.Span;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +73,13 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
   @Override
   protected void afterResponseSent(ServeEvent serveEvent, Response response) {
+
+    Timing timing = serveEvent.getTiming();
+    Span span = Span.current();
+    span.setAttribute("stub.timing.added.delay", timing.getAddedDelay());
+    span.setAttribute("stub.timing.processing", timing.getProcessTime());
+    span.setAttribute("stub.timing.send.response", timing.getResponseSendTime());
+
     for (PostServeAction postServeAction : postServeActions.values()) {
       postServeAction.doGlobalAction(serveEvent, admin);
     }

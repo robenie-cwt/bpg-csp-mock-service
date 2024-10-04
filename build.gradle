@@ -71,6 +71,9 @@ dependencies {
   api "org.ow2.asm:asm:9.4"
 
   implementation "redis.clients:jedis:3.8.0"
+  implementation(platform("io.opentelemetry:opentelemetry-bom:1.42.1"))
+  implementation "io.opentelemetry:opentelemetry-api"
+
   implementation "org.slf4j:slf4j-api:1.7.36"
   standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
 
@@ -201,7 +204,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '2.35.0.27-CWT'
+  version = '2.35.0.28-CWT'
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
