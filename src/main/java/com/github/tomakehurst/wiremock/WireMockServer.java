@@ -156,9 +156,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 String[] channels =
                     Arrays.stream(Topics.values()).map(Topics::toString).toArray(String[]::new);
 
-                notifier.importantInfo("Subscribing...");
+                notifier.importantInfo("Subscribing to Redis...");
                 j.subscribe(new CommandSubscriber(wireMockApp, notifier), channels);
-                notifier.importantInfo("Subscription ended... Will terminate!");
+                notifier.importantInfo("Subscription to Redis ended... Will terminate!");
                 System.exit(10);
               }
             })
